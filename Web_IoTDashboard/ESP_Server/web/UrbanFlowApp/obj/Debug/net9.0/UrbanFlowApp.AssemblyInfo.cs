@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UrbanFlowApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8a9f2bf17698fdf9d6739e222ee19c698c0fd44")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b09f068821c1cfc64bc686cdf8879b38e3553871")]
 [assembly: System.Reflection.AssemblyProductAttribute("UrbanFlowApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UrbanFlowApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -193,5 +193,51 @@ namespace UrbanFlowApp.Controllers
                 }
             }
         }
+
+        [HttpGet]
+        public IActionResult GetConfigByName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest(new { error = "Trebuie să specificați un nume." });
+            }
+
+            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+
+            lock (_fileLock)
+            {
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound(new { error = "Nu există configurații salvate." });
+                }
+
+                try
+                {
+                    var json = System.IO.File.ReadAllText(filePath);
+
+                    using (JsonDocument doc = JsonDocument.Parse(json))
+                    {
+                        var root = doc.RootElement;
+                        if (root.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var element in root.EnumerateArray())
+                            {
+                                if (element.TryGetProperty("name", out var nameProp) &&
+                                    nameProp.GetString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return Content(element.ToString(), "application/json");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { error = "Eroare server: " + ex.Message });
+                }
+            }
+
+            return NotFound(new { error = $"Intersecția cu numele '{name}' nu a fost găsită." });
+        }
     }
 }

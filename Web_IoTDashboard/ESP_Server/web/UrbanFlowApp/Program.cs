@@ -25,5 +25,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.Urls.Add("http://*:5088");
+app.Urls.Add("https://*:7281");
 
 app.Run();
