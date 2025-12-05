@@ -36,4 +36,5 @@ We use a graph to store the intersecton. Each node represents a lane and contain
   - [ ] Buy the parts
     - [ ] Plexiglass base
     - [ ] Decorations ?
-  - [ ] Car simulations
+- [ ] Car simulations
+- [ ] Documentation
