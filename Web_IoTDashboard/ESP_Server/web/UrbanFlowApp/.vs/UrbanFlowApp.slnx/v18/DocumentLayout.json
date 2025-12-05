@@ -3,20 +3,28 @@
   "WorkspaceRootPath": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\controllers\\intersectioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:controllers\\intersectioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\views\\intersection\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:views\\intersection\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\controllers\\intersectioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:controllers\\intersectioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{422CD3A8-4423-08E1-E664-9E15CC406022}|UrbanFlowApp.csproj|a:\\coding\\pulihack\\polihack_urbanflow\\web_iotdashboard\\esp_server\\web\\urbanflowapp\\models\\intersectionmodels.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +54,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-05T22:56:06.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-05T22:52:00.198Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "HomeController.cs",
               "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -59,7 +93,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Create.cshtml",
               "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Views\\Intersection\\Create.cshtml",
               "RelativeDocumentMoniker": "Views\\Intersection\\Create.cshtml",
@@ -72,20 +106,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "IntersectionController.cs",
               "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Controllers\\IntersectionController.cs",
               "RelativeDocumentMoniker": "Controllers\\IntersectionController.cs",
               "ToolTip": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Controllers\\IntersectionController.cs",
               "RelativeToolTip": "Controllers\\IntersectionController.cs",
-              "ViewState": "AgIAAKMAAAAAAAAAAAAYwMQAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAMIAAAAAAAAAAAAcwMcAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-05T20:04:46.275Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Index.cshtml",
               "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
@@ -98,7 +132,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "IntersectionModels.cs",
               "DocumentMoniker": "A:\\Coding\\PuliHack\\polihack_UrbanFlow\\Web_IoTDashboard\\ESP_Server\\web\\UrbanFlowApp\\Models\\IntersectionModels.cs",
               "RelativeDocumentMoniker": "Models\\IntersectionModels.cs",
@@ -106,8 +140,7 @@
               "RelativeToolTip": "Models\\IntersectionModels.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAqwB8AAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T20:02:31.994Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-05T20:02:31.994Z"
             }
           ]
         }

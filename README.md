@@ -19,3 +19,22 @@ Our system is based on controllers for each individual intersection. All the con
 
 ## How intersections are stored?  
 We use a graph to store the intersecton. Each node represents a lane and contains info about it.
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] Sensor EMF
+  - [ ] Sample size sweet spot
+  - [ ] Better Faraday cage
+  - [ ] "Deploy" the code to all arduino UNO
+  - [ ] Arduino - ESP communication
+- [x] ESP
+  - [ ] More algorithms
+- [x] Web page
+  - [ ] Send data from webpage to ESP
+- [ ] Scale model
+  - [ ] Buy the parts
+    - [ ] Plexiglass base
+    - [ ] Decorations ?
+- [ ] Car simulations
+- [ ] Documentation
