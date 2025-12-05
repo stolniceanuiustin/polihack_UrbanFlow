@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting; 
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using UrbanFlowApp.Models; 
+using UrbanFlowApp.Models;
 
 namespace UrbanFlowApp.Controllers
 {
@@ -13,12 +13,14 @@ namespace UrbanFlowApp.Controllers
     {
         private readonly IWebHostEnvironment _env;
 
+        // Obiect static pentru a bloca accesul simultan la fisier (Thread Safety)
+        private static readonly object _fileLock = new object();
+
         public IntersectionController(IWebHostEnvironment env)
         {
             _env = env;
         }
 
-       
         [HttpGet]
         public IActionResult Create()
         {
@@ -27,13 +29,21 @@ namespace UrbanFlowApp.Controllers
 
         [HttpPost]
         public IActionResult Create(IntersectionViewModel model)
-        { 
+        {
+            // 1. Validare: Numarul maxim de conexiuni (pentru bitmask 64-bit)
+            if (model.Connections != null && model.Connections.Count > 64)
+            {
+                ModelState.AddModelError("", "Eroare: Sistemul suportă maximum 64 de conexiuni (limitare hardware bitmask).");
+            }
+
+            // 2. Validare: Tipuri de benzi (IN/OUT)
             if (model.Connections != null && model.Lanes != null)
             {
                 for (int i = 0; i < model.Connections.Count; i++)
                 {
                     var conn = model.Connections[i];
 
+                    // Folosim LocalId pentru a gasi banda corecta, nu indexul din lista
                     var sourceLane = model.Lanes.FirstOrDefault(l => l.LocalId == conn.SourceLaneIdx);
                     var targetLane = model.Lanes.FirstOrDefault(l => l.LocalId == conn.TargetLaneIdx);
 
@@ -55,9 +65,10 @@ namespace UrbanFlowApp.Controllers
                 return View(model);
             }
 
+            // 3. Constructia obiectului Hardware (JSON Schema)
             var hardwareConfig = new
             {
-                id = Guid.NewGuid().ToString(), 
+                id = Guid.NewGuid().ToString(),
                 name = model.Name,
                 default_phase_duration_ms = model.DefaultPhaseDurationMs,
 
@@ -65,8 +76,8 @@ namespace UrbanFlowApp.Controllers
                 lanes = model.Lanes.OrderBy(l => l.LocalId).Select(l => new
                 {
                     id = (uint)l.LocalId,
-                    type = (int)l.Type, 
-                    current_traffic_value = 0, 
+                    type = (int)l.Type,
+                    current_traffic_value = 0,
                     hw = new
                     {
                         sensor_pin = l.SensorPin,
@@ -93,6 +104,7 @@ namespace UrbanFlowApp.Controllers
                     {
                         foreach (var connIdx in p.ActiveConnectionIndices)
                         {
+                            // Safety check suplimentar
                             if (connIdx >= 0 && connIdx < 64)
                             {
                                 mask |= (1UL << connIdx);
@@ -102,41 +114,53 @@ namespace UrbanFlowApp.Controllers
 
                     return new
                     {
-                        active_connections_mask = mask, 
+                        active_connections_mask = mask,
                         duration_ms = (uint)p.DurationMs
                     };
                 })
             };
 
+            // 4. Salvarea in fisier cu LOCK
             try
             {
                 var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+                var options = new JsonSerializerOptions { WriteIndented = true };
 
-                List<object> allIntersections;
-
-                if (System.IO.File.Exists(filePath))
+                // Blocam executia aici pentru ca un singur thread sa scrie in fisier la un moment dat
+                lock (_fileLock)
                 {
-                    var existingJson = System.IO.File.ReadAllText(filePath);
-                    if (string.IsNullOrWhiteSpace(existingJson))
+                    List<object> allIntersections;
+
+                    if (System.IO.File.Exists(filePath))
                     {
-                        allIntersections = new List<object>();
+                        var existingJson = System.IO.File.ReadAllText(filePath);
+                        if (string.IsNullOrWhiteSpace(existingJson))
+                        {
+                            allIntersections = new List<object>();
+                        }
+                        else
+                        {
+                            try
+                            {
+                                allIntersections = JsonSerializer.Deserialize<List<object>>(existingJson) ?? new List<object>();
+                            }
+                            catch (JsonException)
+                            {
+                                // Daca fisierul e corupt, incepem unul nou (sau logam eroarea)
+                                allIntersections = new List<object>();
+                            }
+                        }
                     }
                     else
                     {
-                        allIntersections = JsonSerializer.Deserialize<List<object>>(existingJson);
+                        allIntersections = new List<object>();
                     }
+
+                    allIntersections.Add(hardwareConfig);
+                    System.IO.File.WriteAllText(filePath, JsonSerializer.Serialize(allIntersections, options));
                 }
-                else
-                {
-                    allIntersections = new List<object>();
-                }
 
-                allIntersections.Add(hardwareConfig);
-
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                System.IO.File.WriteAllText(filePath, JsonSerializer.Serialize(allIntersections, options));
-
-                return RedirectToAction("Index", "Home"); 
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
@@ -145,25 +169,28 @@ namespace UrbanFlowApp.Controllers
             }
         }
 
-      
         [HttpGet]
         public IActionResult GetConfig()
         {
             var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
 
-            if (!System.IO.File.Exists(filePath))
+            // Folosim lock si la citire pentru a nu citi in timp ce altcineva scrie (partial write)
+            lock (_fileLock)
             {
-                return NotFound(new { error = "Config file not found" });
-            }
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound(new { error = "Config file not found" });
+                }
 
-            try
-            {
-                var jsonContent = System.IO.File.ReadAllText(filePath);
-                return Content(jsonContent, "application/json");
-            }
-            catch
-            {
-                return StatusCode(500, new { error = "Could not read config file" });
+                try
+                {
+                    var jsonContent = System.IO.File.ReadAllText(filePath);
+                    return Content(jsonContent, "application/json");
+                }
+                catch
+                {
+                    return StatusCode(500, new { error = "Could not read config file" });
+                }
             }
         }
     }
