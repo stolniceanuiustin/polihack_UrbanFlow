@@ -37,5 +37,3 @@ We use a graph to store the intersecton. Each node represents a lane and contain
     - [ ] Plexiglass base
     - [ ] Decorations ?
   - [ ] Car simulations
-         
-  - [ ]  
