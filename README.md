@@ -1,9 +1,9 @@
 ## UrbanFlow - UpSmart existing traffic lights in no time!
 UrbanFlow is a product prototype developed at Polihack v.18, by team Camera521, composed of: 
-    * Stolniceanu Iustin-Pavel,  
-    * Tuchila Adi-Bogdan, 
-    * Popescu Florian, 
-    * Chira Matei, 
+    * Stolniceanu Iustin-Pavel,   
+    * Tuchila Adi-Bogdan,   
+    * Popescu Florian,   
+    * Chira Matei,    
     * Todi Tinu-Constantin.  
 
          
