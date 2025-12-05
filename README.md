@@ -30,7 +30,7 @@ We use a graph to store the intersecton. Each node represents a lane and contain
   - [ ] Arduino - ESP communication
 - [x] ESP
   - [ ] More algorithms
-- [ ] Web page
+- [x] Web page
   - [ ] Send data from webpage to ESP
 - [ ] Scale model
   - [ ] Buy the parts
