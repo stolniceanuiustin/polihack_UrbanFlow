@@ -5,10 +5,11 @@
 #include "TrafficController.h"
 #include "WIFI_CREDENTIALS.h"
 #include "DEFAULT_JSON_CONFIG.h"
+#include "CONFIG.h"
 
 // Ensure SIMULATION_MODE has a default if not defined in headers
 #ifndef SIMULATION_MODE
-#define SIMULATION_MODE false
+#define SIMULATION_MODE true
 #endif
 
 #if defined(ESP8266)
