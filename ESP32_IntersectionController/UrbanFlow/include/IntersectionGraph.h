@@ -29,6 +29,7 @@ typedef struct {
     LaneType type;
     uint32_t current_traffic_value; 
     LaneHardware hw; 
+    uint16_t bearing; //Entry/exit angle - for conflict calculation 
 } Lane;
 
 typedef struct {
@@ -60,8 +61,15 @@ typedef struct {
     // Configuration
     uint32_t default_phase_duration_ms;
 
+   
+
     // Runtime State
     uint32_t current_phase_idx;
+
+    //Conflict computation on edge device
+    uint64_t conflict_masks[MAX_CONNECTION_CNT];
+
+
 
 } Intersection;
 
@@ -72,7 +80,7 @@ void intersection_reset(Intersection *intr);
 
 
 // Returns INTGRAPH_INVALID_INDEX on failure
-uint32_t add_lane(Intersection *intr, uint32_t id, LaneType type, LaneHardware hw);
+uint32_t add_lane(Intersection *intr, uint32_t id, LaneType type, LaneHardware hw, uint16_t bearing);
 
 // Returns INTGRAPH_INVALID_INDEX on failure
 uint32_t add_connection(Intersection *intr, uint32_t source_lane_idx, uint32_t target_lane_idx);
@@ -83,5 +91,9 @@ void add_phase(Intersection *intr, uint64_t connection_mask, uint32_t duration_m
 
 // --- Helpers ---
 uint32_t find_lane_index_by_id(Intersection *intr, uint32_t id);
+
+// --- SAFETY CHECKS ---
+void compute_conflicts_on_device(Intersection *intr);
+bool is_phase_safe(Intersection *intr, uint64_t phase_mask);
 
 #endif

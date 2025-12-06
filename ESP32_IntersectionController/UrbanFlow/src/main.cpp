@@ -5,57 +5,105 @@
 #include "TrafficController.h"
 #include "WIFI_CREDENTIALS.h"
 
+#if defined(ESP8266)
+    #define HEARTBEAT_PIN 5 
+    #define BOARD_NAME "ESP8266"
 
-// --- JSON PARSER ---
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
+    #define HEARTBEAT_PIN 36    
+    #define BOARD_NAME "ESP32-S3"
+
+#elif defined(ESP32)
+    #define HEARTBEAT_PIN 23 
+    #define BOARD_NAME "ESP32-Standard"
+
+#else
+    #error "Unknown Board! Please define HEARTBEAT_PIN manually."
+#endif
+
 bool parseConfig(String jsonPayload) {
-    // 16KB buffer for safety
+    // 1. Allocate and Deserialize
     DynamicJsonDocument doc(16384); 
     DeserializationError error = deserializeJson(doc, jsonPayload);
+
+    // --- ADDED: PRETTY PRINT ---
+    // Only print if deserialization was successful to avoid confusion
+    if (!error) {
+        Serial.println("\n--- Received Configuration (Pretty Print) ---");
+        serializeJsonPretty(doc, Serial);
+        Serial.println("\n---------------------------------------------");
+    } else {
+        // If parsing failed, print the raw payload so you can debug the syntax error
+        Serial.println("\n--- Received Invalid JSON ---");
+        Serial.println(jsonPayload); 
+    }
+    // ---------------------------
 
     if (error) {
         Serial.print("JSON Parse Error: "); Serial.println(error.c_str());
         return false;
     }
 
-    // 1. Init
+    // 2. Init
     intersection_init(&intr, doc["default_phase_duration_ms"]);
 
-    // 2. Parse Lanes (Addressing nested 'hw' and snake_case keys)
+    // 3. Parse Lanes
     JsonArray lanes = doc["lanes"];
     for (JsonObject l : lanes) {
         LaneHardware hw;
-        JsonObject l_hw = l["hw"]; // Access nested object
+        JsonObject l_hw = l["hw"];
         
         hw.sensor_pin = l_hw["sensor_pin"];
-        hw.green_pin  = l_hw["red_pin"];
+        hw.green_pin  = l_hw["red_pin"];     
         hw.yellow_pin = l_hw["yellow_pin"];
-        hw.red_pin    = l_hw["green_pin"];
+        hw.red_pin    = l_hw["green_pin"];   
 
-        add_lane(&intr, l["id"], (LaneType)l["type"].as<int>(), hw);
+        uint16_t bearing = l.containsKey("bearing") ? l["bearing"] : 0;
+
+        add_lane(&intr, l["id"], (LaneType)l["type"].as<int>(), hw, bearing);
     }
 
-    // 3. Parse Connections
+    // 4. Parse Connections
     JsonArray connections = doc["connections"];
     for (JsonObject c : connections) {
         add_connection(&intr, c["source_lane_idx"], c["target_lane_idx"]);
     }
 
-    // 4. Parse Phases (Reading mask directly)
+    // 5. Calculate Physics
+    compute_conflicts_on_device(&intr);
+
+    // 6. Parse Phases & Validate
     JsonArray phases = doc["phases"];
+    int phaseCount = 0;
+    
     for (JsonObject p : phases) {
         uint64_t mask = p["active_connections_mask"];
+        
+        if (!is_phase_safe(&intr, mask)) {
+            Serial.printf("FATAL: Cloud requested UNSAFE Phase #%d (Mask: %llu). Skipping.\n", phaseCount);
+            continue; 
+        }
+
         add_phase(&intr, mask, p["duration_ms"]);
+        phaseCount++;
     }
     
     Serial.printf("Graph Built: %d Lanes, %d Conn, %d Phases\n", 
                   intr.lane_cnt, intr.connection_cnt, intr.phase_cnt);
 
+    if (intr.phase_cnt == 0) {
+        Serial.println("Error: No valid safe phases found.");
+        return false;
+    }
+
     return true;
 }
-
 void setup() {
     Serial.begin(115200);
     delay(2000);
+
+    pinMode(HEARTBEAT_PIN, OUTPUT);
+
     Serial.println("\n--- WiFi Traffic Controller ---");
 
     // 1. Connect to WiFi
@@ -104,4 +152,11 @@ void setup() {
 
 void loop() {
     controller_loop();
+
+    long now = millis();
+    if ((now / 500) % 2 == 0) {
+        digitalWrite(HEARTBEAT_PIN, HIGH);
+    } else {
+        digitalWrite(HEARTBEAT_PIN, LOW);
+    }
 }
