@@ -46,11 +46,13 @@ body {
 
 .ch-colors {
     background-color: #EDBD11;
+    font-weight: bold;
     color: black;
 }
 
 .btn-colors {
     background-color: #EDED11;
+    border: 1px solid #BFBFBA;
     color: black;
 }
 
@@ -61,6 +63,7 @@ body {
 
 .btn-colors-2 {
     background-color: #E37332;
+    border: 1px solid #BFBFBA;
     color: black;
 }
 
