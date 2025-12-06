@@ -31,7 +31,8 @@ We use a graph to store the intersecton. Each node represents a lane and contain
 - [x] ESP
   - [ ] More algorithms
 - [x] Web page
-  - [ ] Send data from webpage to ESP
+  - [x] Send data from webpage to ESP
+  - [ ] Make it feel more like a product
 - [ ] Scale model
   - [ ] Buy the parts
     - [ ] Plexiglass base

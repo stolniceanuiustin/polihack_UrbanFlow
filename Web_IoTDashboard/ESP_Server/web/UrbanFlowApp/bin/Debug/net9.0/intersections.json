@@ -1,188 +1,5 @@
 [
   {
-    "id": "5a051528-103b-478b-bdd9-170b667bdc0c",
-    "name": "Camera 11",
-    "default_phase_duration_ms": 3000,
-    "lane_cnt": 3,
-    "lanes": [
-      {
-        "id": 0,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 1,
-        "type": 1,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 2,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      }
-    ],
-    "connection_cnt": 2,
-    "connections": [
-      {
-        "source_lane_idx": 0,
-        "target_lane_idx": 1,
-        "weight": 1
-      },
-      {
-        "source_lane_idx": 2,
-        "target_lane_idx": 1,
-        "weight": 1
-      }
-    ],
-    "phase_cnt": 1,
-    "phases": [
-      {
-        "active_connections_mask": 1,
-        "duration_ms": 5000
-      }
-    ]
-  },
-  {
-    "id": "e6dbc98b-f77f-4368-b142-3df39398181c",
-    "name": "Camera 112",
-    "default_phase_duration_ms": 3000,
-    "lane_cnt": 3,
-    "lanes": [
-      {
-        "id": 0,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 1,
-        "type": 1,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 2,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      }
-    ],
-    "connection_cnt": 2,
-    "connections": [
-      {
-        "source_lane_idx": 0,
-        "target_lane_idx": 1,
-        "weight": 1
-      },
-      {
-        "source_lane_idx": 2,
-        "target_lane_idx": 1,
-        "weight": 1
-      }
-    ],
-    "phase_cnt": 1,
-    "phases": [
-      {
-        "active_connections_mask": 2,
-        "duration_ms": 5000
-      }
-    ]
-  },
-  {
-    "id": "d6eecd8d-04ff-42af-8c3f-afbae45c86f2",
-    "name": "Stana Cimpanzeul si Sobolanul",
-    "default_phase_duration_ms": 3000,
-    "lane_cnt": 3,
-    "lanes": [
-      {
-        "id": 0,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 1,
-        "type": 1,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      },
-      {
-        "id": 2,
-        "type": 0,
-        "current_traffic_value": 0,
-        "hw": {
-          "sensor_pin": -1,
-          "green_pin": -1,
-          "yellow_pin": -1,
-          "red_pin": -1
-        }
-      }
-    ],
-    "connection_cnt": 2,
-    "connections": [
-      {
-        "source_lane_idx": 0,
-        "target_lane_idx": 1,
-        "weight": 1
-      },
-      {
-        "source_lane_idx": 2,
-        "target_lane_idx": 1,
-        "weight": 1
-      }
-    ],
-    "phase_cnt": 1,
-    "phases": [
-      {
-        "active_connections_mask": 1,
-        "duration_ms": 5000
-      }
-    ]
-  },
-  {
     "id": "c90b50ff-f9ca-4304-a897-3eab5912382f",
     "name": "IntersectieIn4",
     "default_phase_duration_ms": 3000,
@@ -356,6 +173,144 @@
       },
       {
         "active_connections_mask": 3584,
+        "duration_ms": 5000
+      }
+    ]
+  },
+  {
+    "id": "5a051528-103b-478b-bdd9-170b667bdc0c",
+    "name": "Camera 11",
+    "default_phase_duration_ms": 3000,
+    "lane_cnt": 4,
+    "lanes": [
+      {
+        "id": 0,
+        "type": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 1,
+        "type": 1,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 2,
+        "type": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 3,
+        "type": 1,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      }
+    ],
+    "connection_cnt": 2,
+    "connections": [
+      {
+        "source_lane_idx": 0,
+        "target_lane_idx": 1,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 2,
+        "target_lane_idx": 3,
+        "weight": 1
+      }
+    ],
+    "phase_cnt": 1,
+    "phases": [
+      {
+        "active_connections_mask": 3,
+        "duration_ms": 5000
+      }
+    ]
+  },
+  {
+    "id": "60aecbfb-0bad-4a59-a09c-88e5c4cfe44b",
+    "name": "IntersectieIn5",
+    "default_phase_duration_ms": 3000,
+    "lane_cnt": 3,
+    "lanes": [
+      {
+        "id": 0,
+        "type": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 1,
+        "type": 1,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 2,
+        "type": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      }
+    ],
+    "connection_cnt": 3,
+    "connections": [
+      {
+        "source_lane_idx": 0,
+        "target_lane_idx": 1,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 2,
+        "target_lane_idx": 1,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 2,
+        "target_lane_idx": 1,
+        "weight": 1
+      }
+    ],
+    "phase_cnt": 1,
+    "phases": [
+      {
+        "active_connections_mask": 5,
         "duration_ms": 5000
       }
     ]
