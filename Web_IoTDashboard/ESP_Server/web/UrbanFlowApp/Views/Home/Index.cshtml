@@ -1,7 +1,7 @@
 ﻿@model List<dynamic>
 
 @{
-    ViewData["Title"] = "Dashboard Intersecții";
+    ViewData["Title"] = "UrbanFlow Dashboard";
 }
 
 <div class="text-center mb-5">
@@ -31,11 +31,12 @@
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Nume Intersecție</th>
-                        <th>Benzi (Lanes)</th>
+                        <th>Nume</th>
+                        <th>Benzi</th>>
                         <th>Faze</th>
-                        <th>Durată Default</th>
+                        <th>Durată implicita</th>
                         <th>ID Hardware</th>
+                        <th class="text-center" style="width: 200px;">Acțiuni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,30 +45,42 @@
                     }
                     @foreach (var item in Model)
                     {
-                        // Folosim JsonElement pentru a accesa proprietatile dinamice
                         var element = (System.Text.Json.JsonElement)item;
+                        var currentId = element.TryGetProperty("id", out var id) ? id.ToString() : "";
+                        var currentName = element.TryGetProperty("name", out var name) ? name.ToString() : "Fără Nume";
+
                         <tr>
                             <td>@(index++)</td>
-                            <td class="font-weight-bold">
-                                @(element.TryGetProperty("name", out var name) ? name.ToString() : "Fără Nume")
-                            </td>
+                            <td class="font-weight-bold">@currentName</td>
                             <td>
-                                <span class="badge badge-info">
+                                <span>
                                     @(element.TryGetProperty("lane_cnt", out var lanes) ? lanes.ToString() : "0") benzi
                                 </span>
                             </td>
                             <td>
-                                <span class="badge badge-warning">
+
+                                <span>
                                     @(element.TryGetProperty("phase_cnt", out var phases) ? phases.ToString() : "0") faze
                                 </span>
                             </td>
                             <td>
                                 @(element.TryGetProperty("default_phase_duration_ms", out var dur) ? dur.ToString() : "-") ms
                             </td>
-                            <td>
-                                <small class="text-muted">
-                                    @(element.TryGetProperty("id", out var id) ? id.ToString() : "N/A")
-                                </small>
+                            <td><small class="text-muted">@currentId</small></td>
+
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a asp-controller="Intersection" asp-action="Edit" asp-route-id="@currentId" class="btn btn-sm btn-outline-primary">
+                                        Reconfigurează
+                                    </a>
+
+                                    <form asp-controller="Intersection" asp-action="Delete" method="post" onsubmit="return confirm('Ești sigur că vrei să ștergi intersecția @currentName?');" style="display:inline;">
+                                        <input type="hidden" name="id" value="@currentId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            Șterge
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

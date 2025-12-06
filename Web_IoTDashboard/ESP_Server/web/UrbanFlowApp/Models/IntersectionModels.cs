@@ -42,6 +42,7 @@ namespace UrbanFlowApp.Models
 
     public class IntersectionViewModel
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public int DefaultPhaseDurationMs { get; set; } = 3000;
 
