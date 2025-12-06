@@ -69,6 +69,7 @@ namespace UrbanFlowApp.Controllers
             {
                 id = Guid.NewGuid().ToString(),
                 name = model.Name,
+                status = "OK",
                 default_phase_duration_ms = model.DefaultPhaseDurationMs,
 
                 lane_cnt = model.Lanes.Count,
@@ -76,6 +77,9 @@ namespace UrbanFlowApp.Controllers
                 {
                     id = (uint)l.LocalId,
                     type = (int)l.Type,
+
+                    bearing = (l.Bearing % 360 + 360) % 360,
+
                     current_traffic_value = 0,
                     hw = new
                     {
@@ -165,107 +169,6 @@ namespace UrbanFlowApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetConfig()
-        {
-            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
-
-            lock (_fileLock)
-            {
-                if (!System.IO.File.Exists(filePath))
-                {
-                    return NotFound(new { error = "Config file not found" });
-                }
-
-                try
-                {
-                    var jsonContent = System.IO.File.ReadAllText(filePath);
-                    return Content(jsonContent, "application/json");
-                }
-                catch
-                {
-                    return StatusCode(500, new { error = "Could not read config file" });
-                }
-            }
-        }
-
-        [HttpGet]
-        public IActionResult GetConfigByName(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                return BadRequest(new { error = "Trebuie să specificați un nume." });
-            }
-
-            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
-
-            lock (_fileLock)
-            {
-                if (!System.IO.File.Exists(filePath))
-                {
-                    return NotFound(new { error = "Nu există configurații salvate." });
-                }
-
-                try
-                {
-                    var json = System.IO.File.ReadAllText(filePath);
-
-                    using (JsonDocument doc = JsonDocument.Parse(json))
-                    {
-                        var root = doc.RootElement;
-                        if (root.ValueKind == JsonValueKind.Array)
-                        {
-                            foreach (var element in root.EnumerateArray())
-                            {
-                                if (element.TryGetProperty("name", out var nameProp) &&
-                                    nameProp.GetString().Equals(name, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    return Content(element.ToString(), "application/json");
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { error = "Eroare server: " + ex.Message });
-                }
-            }
-
-            return NotFound(new { error = $"Intersecția cu numele '{name}' nu a fost găsită." });
-        }
-
-        [HttpPost]
-        [HttpPost]
-        public IActionResult Delete(string id)
-        {
-            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
-
-            lock (_fileLock)
-            {
-                if (System.IO.File.Exists(filePath))
-                {
-                    var json = System.IO.File.ReadAllText(filePath);
-
-                    var rootNode = JsonNode.Parse(json);
-
-                    if (rootNode is JsonArray jsonArray)
-                    {
-                        var nodeToRemove = jsonArray.FirstOrDefault(x => x["id"]?.ToString() == id);
-
-                        if (nodeToRemove != null)
-                        {
-                            jsonArray.Remove(nodeToRemove); 
-
-                            var options = new JsonSerializerOptions { WriteIndented = true };
-                            System.IO.File.WriteAllText(filePath, rootNode.ToJsonString(options));
-                        }
-                    }
-                }
-            }
-            return RedirectToAction("Index", "Home");
-        }
-
-        [HttpGet]
         public IActionResult Edit(string id)
         {
             var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
@@ -337,8 +240,17 @@ namespace UrbanFlowApp.Controllers
                 {
                     id = (uint)l.LocalId,
                     type = (int)l.Type,
+
+                    bearing = (l.Bearing % 360 + 360) % 360,
+
                     current_traffic_value = 0,
-                    hw = new { sensor_pin = l.SensorPin, green_pin = l.GreenPin, yellow_pin = l.YellowPin, red_pin = l.RedPin }
+                    hw = new
+                    {
+                        sensor_pin = l.SensorPin,
+                        green_pin = l.GreenPin,
+                        yellow_pin = l.YellowPin,
+                        red_pin = l.RedPin
+                    }
                 }),
                 connection_cnt = model.Connections.Count,
                 connections = model.Connections.OrderBy(c => c.Id).Select(c => new
@@ -399,6 +311,149 @@ namespace UrbanFlowApp.Controllers
                 ModelState.AddModelError("", "Eroare la salvare: " + ex.Message);
                 return View(model);
             }
+        }
+
+        [HttpPost]
+        public IActionResult Delete(string id)
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+
+            lock (_fileLock)
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    var json = System.IO.File.ReadAllText(filePath);
+
+                    var rootNode = JsonNode.Parse(json);
+
+                    if (rootNode is JsonArray jsonArray)
+                    {
+                        var nodeToRemove = jsonArray.FirstOrDefault(x => x["id"]?.ToString() == id);
+
+                        if (nodeToRemove != null)
+                        {
+                            jsonArray.Remove(nodeToRemove);
+
+                            var options = new JsonSerializerOptions { WriteIndented = true };
+                            System.IO.File.WriteAllText(filePath, rootNode.ToJsonString(options));
+                        }
+                    }
+                }
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult GetConfig()
+        {
+            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+
+            lock (_fileLock)
+            {
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound(new { error = "Config file not found" });
+                }
+
+                try
+                {
+                    var jsonContent = System.IO.File.ReadAllText(filePath);
+                    return Content(jsonContent, "application/json");
+                }
+                catch
+                {
+                    return StatusCode(500, new { error = "Could not read config file" });
+                }
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetConfigByName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest(new { error = "Trebuie să specificați un nume." });
+            }
+
+            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+
+            lock (_fileLock)
+            {
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound(new { error = "Nu există configurații salvate." });
+                }
+
+                try
+                {
+                    var json = System.IO.File.ReadAllText(filePath);
+
+                    using (JsonDocument doc = JsonDocument.Parse(json))
+                    {
+                        var root = doc.RootElement;
+                        if (root.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var element in root.EnumerateArray())
+                            {
+                                if (element.TryGetProperty("name", out var nameProp) &&
+                                    nameProp.GetString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return Content(element.ToString(), "application/json");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { error = "Eroare server: " + ex.Message });
+                }
+            }
+
+            return NotFound(new { error = $"Intersecția cu numele '{name}' nu a fost găsită." });
+        }
+
+
+        [HttpPost] 
+        public IActionResult UpdateStatus(string name, string status)
+        {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(status))
+                return BadRequest("Nume și Status sunt obligatorii.");
+
+            var filePath = Path.Combine(_env.ContentRootPath, "intersections.json");
+
+            lock (_fileLock)
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    try
+                    {
+                        var json = System.IO.File.ReadAllText(filePath);
+                        var rootNode = JsonNode.Parse(json);
+
+                        if (rootNode is JsonArray jsonArray)
+                        {
+                            var targetNode = jsonArray.FirstOrDefault(x =>
+                                x["name"]?.ToString().Equals(name, StringComparison.OrdinalIgnoreCase) == true);
+
+                            if (targetNode != null)
+                            {
+                                targetNode["status"] = status;
+
+                                var options = new JsonSerializerOptions { WriteIndented = true };
+                                System.IO.File.WriteAllText(filePath, jsonArray.ToJsonString(options));
+
+                                return Ok(new { message = "Status actualizat." });
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return StatusCode(500, ex.Message);
+                    }
+                }
+            }
+            return NotFound("Intersecția nu a fost găsită.");
         }
 
     }

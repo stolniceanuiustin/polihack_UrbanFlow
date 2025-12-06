@@ -6,11 +6,6 @@
         <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Înapoi la Dashboard</a>
     </div>
 
-    <div class="alert alert-warning">
-        <i class="fa fa-info-circle"></i> <strong>Mod Reconfigurare:</strong>
-        ID-ul și Numele sunt păstrate, dar configurația benzilor și fazelor trebuie refăcută de la zero.
-    </div>
-
     <form asp-action="Edit" method="post" id="mainForm">
 
         <input type="hidden" asp-for="Id" />
@@ -83,6 +78,12 @@
                             <option value="1">OUT (Ieșire)</option>
                         </select>
                     </div>
+
+                    <div class="col-md-2">
+                        <label class="small mb-0">Unghi (°)</label>
+                        <input type="number" name="Lanes[${i}].Bearing" class="form-control form-control-sm" value="0" min="0" max="360" placeholder="0-360">
+                    </div>
+
                     <div class="col-md-6">
                         <small>Hardware Pins</small>
                         <div class="input-group input-group-sm">
