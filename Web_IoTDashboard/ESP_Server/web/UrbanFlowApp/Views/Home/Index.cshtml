@@ -1,7 +1,21 @@
 ﻿@model List<dynamic>
 
 @{
-    ViewData["Title"] = "Dashboard Intersecții";
+    ViewData["Title"] = "UrbanFlow Dashboard";
+
+    var sortedModel = new List<System.Text.Json.JsonElement>();
+
+    if (Model != null && Model.Count > 0)
+    {
+        sortedModel = Model.Select(item => (System.Text.Json.JsonElement)item)
+                           .OrderByDescending(e =>
+                           {
+                               var s = e.TryGetProperty("status", out var st) ? st.ToString() : "OK";
+                               return s != "OK";
+                           })
+                           .ThenBy(e => e.TryGetProperty("name", out var n) ? n.ToString() : "")
+                           .ToList();
+    }
 }
 
 <div class="text-center mb-5">
@@ -12,12 +26,12 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Intersecții Configurate</h3>
-        <a asp-controller="Intersection" asp-action="Create" class="btn btn-primary btn-lg">
-            <i class="fa fa-plus"></i> + Adaugă Intersecție Nouă
+        <a asp-controller="Intersection" asp-action="Create" class="btn btn-colors">
+            Adaugă Intersecție Nouă
         </a>
     </div>
 
-    @if (Model == null || Model.Count == 0)
+    @if (sortedModel.Count == 0)
     {
         <div class="alert alert-info text-center">
             <h4>Nu există nicio intersecție configurată.</h4>
@@ -30,44 +44,83 @@
             <table class="table table-hover table-bordered shadow-sm">
                 <thead class="thead-dark">
                     <tr>
+                        <th class="text-center" style="width: 60px;">Stare</th>
                         <th>#</th>
                         <th>Nume Intersecție</th>
-                        <th>Benzi (Lanes)</th>
+                        <th>Benzi</th>
                         <th>Faze</th>
                         <th>Durată Default</th>
                         <th>ID Hardware</th>
+                        <th class="text-center" style="width: 200px;">Acțiuni</th>
                     </tr>
                 </thead>
                 <tbody>
                     @{
                         int index = 1;
                     }
-                    @foreach (var item in Model)
+                    @foreach (var element in sortedModel)
                     {
-                        // Folosim JsonElement pentru a accesa proprietatile dinamice
-                        var element = (System.Text.Json.JsonElement)item;
-                        <tr>
+                        var currentId = element.TryGetProperty("id", out var id) ? id.ToString() : "";
+                        var currentName = element.TryGetProperty("name", out var name) ? name.ToString() : "Fără Nume";
+
+                        var currentStatus = element.TryGetProperty("status", out var s) ? s.ToString() : "OK";
+                        var isOk = currentStatus == "OK";
+                        var rowClass = isOk ? "" : "table-danger";
+
+                        <tr class="@rowClass">
+                            <td class="text-center align-middle">
+                                @if (isOk)
+                                {
+                                    <i class="fa fa-check text-success font-weight-bold" title="Status: OK"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-times text-danger font-weight-bold"
+                                       data-toggle="tooltip"
+                                       title="Eroare: @currentStatus"
+                                       style="cursor: help; font-size: 1.2em;"></i>
+                                }
+                            </td>
+
                             <td>@(index++)</td>
-                            <td class="font-weight-bold">
-                                @(element.TryGetProperty("name", out var name) ? name.ToString() : "Fără Nume")
+
+                            <td class="font-weight-bold text-black">
+                                @currentName
                             </td>
+
                             <td>
-                                <span class="badge badge-info">
-                                    @(element.TryGetProperty("lane_cnt", out var lanes) ? lanes.ToString() : "0") benzi
+                                <span class="badge badge-info text-black">
+                                    @(element.TryGetProperty("lane_cnt", out var lanes) ? lanes.ToString() : "0")
                                 </span>
                             </td>
+
                             <td>
-                                <span class="badge badge-warning">
-                                    @(element.TryGetProperty("phase_cnt", out var phases) ? phases.ToString() : "0") faze
+                                <span class="badge badge-warning text-black">
+                                    @(element.TryGetProperty("phase_cnt", out var phases) ? phases.ToString() : "0")
                                 </span>
                             </td>
+
                             <td>
                                 @(element.TryGetProperty("default_phase_duration_ms", out var dur) ? dur.ToString() : "-") ms
                             </td>
+
                             <td>
-                                <small class="text-muted">
-                                    @(element.TryGetProperty("id", out var id) ? id.ToString() : "N/A")
-                                </small>
+                                <small class="text-muted">@currentId</small>
+                            </td>
+
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a asp-controller="Intersection" asp-action="Edit" asp-route-id="@currentId" class="btn btn-colors">
+                                        Reconfigurează
+                                    </a>
+
+                                    <form asp-controller="Intersection" asp-action="Delete" method="post" onsubmit="return confirm('Ești sigur că vrei să ștergi intersecția @currentName?');" style="display:inline;">
+                                        <input type="hidden" name="id" value="@currentId" />
+                                        <button type="submit" class="btn btn-colors-2">
+                                            Șterge
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

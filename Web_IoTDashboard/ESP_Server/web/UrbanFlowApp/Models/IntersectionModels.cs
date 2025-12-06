@@ -14,7 +14,7 @@ namespace UrbanFlowApp.Models
 
         [Required]
         public LaneType Type { get; set; }
-
+        public short Bearing { get; set; } = 0;
         public short SensorPin { get; set; } = -1;
         public short GreenPin { get; set; } = -1;
         public short YellowPin { get; set; } = -1;
@@ -42,11 +42,13 @@ namespace UrbanFlowApp.Models
 
     public class IntersectionViewModel
     {
+        public string Id { get; set; }
         public string Name { get; set; }
         public int DefaultPhaseDurationMs { get; set; } = 3000;
 
         public List<LaneModel> Lanes { get; set; } = new List<LaneModel>();
         public List<ConnectionModel> Connections { get; set; } = new List<ConnectionModel>();
         public List<PhaseModel> Phases { get; set; } = new List<PhaseModel>();
+        public String StatusMessage { get; set; } = "OK";
     }
 }

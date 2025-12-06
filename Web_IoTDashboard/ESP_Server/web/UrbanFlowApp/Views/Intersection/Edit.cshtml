@@ -1,0 +1,224 @@
+﻿@model UrbanFlowApp.Models.IntersectionViewModel
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Reconfigurare Intersecție</h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-colors">Înapoi la Dashboard</a>
+    </div>
+
+    <form asp-action="Edit" method="post" id="mainForm">
+
+        <input type="hidden" asp-for="Id" />
+
+        <div class="card mb-3">
+            <div class="card-header ch-colors">1. Identitate (Fixă)</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Nume Intersecție</label>
+                    <input asp-for="Name" class="form-control" readonly style="background-color: #e9ecef;" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header ch-colors">2. Redefinire Benzi</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Număr nou de benzi:</label>
+                    <input type="number" id="numLanesInput" class="form-control" min="1" max="16" style="width:100px; display:inline-block">
+                    <button type="button" class="btn btn-colors" onclick="generateLanes()">Generează Benzi Noi</button>
+                </div>
+                <div id="lanesContainer" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header ch-colors">3. Conexiuni (Rute)</div>
+            <div class="card-body">
+                <button type="button" class="btn btn-colors" onclick="addConnection()">Adaugă Conexiune</button>
+                <div id="connectionsContainer"></div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header ch-colors">4. Faze Semafor</div>
+            <div class="card-body">
+                <button type="button" class="btn btn-colors" onclick="addPhase()">Adaugă Fază</button>
+                <div id="phasesContainer"></div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-colors">Salvează Modificările</button>
+    </form>
+</div>
+
+<script>
+    let lanesCount = 0;
+    let connectionsCount = 0;
+    let phasesCount = 0;
+
+    function generateLanes() {
+        const count = document.getElementById('numLanesInput').value;
+        const container = document.getElementById('lanesContainer');
+
+        container.innerHTML = '';
+        lanesCount = count;
+
+        for (let i = 0; i < count; i++) {
+            const html = `
+                <div class="row mb-2 border-bottom pb-2 lane-row" data-id="${i}">
+                    <div class="col-md-2">
+                        <strong>Banda ID: ${i}</strong>
+                        <input type="hidden" name="Lanes[${i}].LocalId" value="${i}" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Tip:</label>
+                        <select name="Lanes[${i}].Type" class="form-control lane-type-select" onchange="updateConnectionDropdowns()">
+                            <option value="0">IN (Intrare)</option>
+                            <option value="1">OUT (Ieșire)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="small mb-0">Unghi (°)</label>
+                        <input type="number" name="Lanes[${i}].Bearing" class="form-control form-control-sm" value="0" min="0" max="360" placeholder="0-360">
+                    </div>
+
+                    <div class="col-md-6">
+                        <small>Hardware Pins</small>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" placeholder="Sensor" name="Lanes[${i}].SensorPin" value="-1">
+                            <input type="text" class="form-control" placeholder="Red" name="Lanes[${i}].RedPin" value="-1">
+                            <input type="text" class="form-control" placeholder="Yellow" name="Lanes[${i}].YellowPin" value="-1">
+                            <input type="text" class="form-control" placeholder="Green" name="Lanes[${i}].GreenPin" value="-1">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        document.getElementById('connectionsContainer').innerHTML = '';
+        connectionsCount = 0;
+
+        document.getElementById('phasesContainer').innerHTML = '';
+        phasesCount = 0;
+
+        updateConnectionDropdowns();
+    }
+
+    function addConnection() {
+        const i = connectionsCount;
+        const container = document.getElementById('connectionsContainer');
+
+        const optionsHTML = generateLaneOptions();
+
+        const html = `
+            <div class="row mb-2 align-items-center connection-row" id="conn_row_${i}" data-conn-id="${i}">
+                <div class="col-auto"><strong>Conn #${i}</strong></div>
+                <input type="hidden" name="Connections[${i}].Id" value="${i}" />
+
+                <div class="col">
+                    <label>Sursa (IN):</label>
+                    <select name="Connections[${i}].SourceLaneIdx" class="form-control form-control-sm conn-source">
+                        ${optionsHTML.inOptions}
+                    </select>
+                </div>
+                <div class="col-auto">➡</div>
+                <div class="col">
+                    <label>Dest. (OUT):</label>
+                    <select name="Connections[${i}].TargetLaneIdx" class="form-control form-control-sm conn-target">
+                         ${optionsHTML.outOptions}
+                    </select>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+
+        refreshPhaseCheckboxes(i);
+
+        connectionsCount++;
+    }
+
+    function addPhase() {
+        const pIdx = phasesCount;
+        const container = document.getElementById('phasesContainer');
+
+        let checkboxesHtml = `<div class="d-flex flex-wrap phase-checkbox-container" id="phase_checkboxes_${pIdx}">`;
+        for(let c=0; c < connectionsCount; c++) {
+            checkboxesHtml += `
+                <div class="form-check mr-3 phase-conn-check-${c}">
+                    <input class="form-check-input" type="checkbox" name="Phases[${pIdx}].ActiveConnectionIndices" value="${c}" id="p${pIdx}_c${c}">
+                    <label class="form-check-label" for="p${pIdx}_c${c}">Conn. ${c}</label>
+                </div>
+            `;
+        }
+        checkboxesHtml += `</div>`;
+
+        const html = `
+            <div class="card mt-2 border-success phase-card" data-phase-id="${pIdx}">
+                <div class="card-body p-2">
+                    <h6>Faza ${pIdx + 1}</h6>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Durata (ms):</label>
+                        <div class="col-sm-3">
+                            <input type="number" name="Phases[${pIdx}].DurationMs" class="form-control" value="5000">
+                        </div>
+                    </div>
+                    <strong>Conexiuni Active (Verde):</strong>
+                    ${checkboxesHtml}
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', html);
+        phasesCount++;
+    }
+
+    function refreshPhaseCheckboxes(newConnIndex) {
+        const phaseContainers = document.querySelectorAll('.phase-checkbox-container');
+
+        phaseContainers.forEach((container) => {
+            const pIdx = container.id.split('_')[2];
+
+            const newCheckbox = `
+                <div class="form-check mr-3 phase-conn-check-${newConnIndex}">
+                    <input class="form-check-input" type="checkbox" name="Phases[${pIdx}].ActiveConnectionIndices" value="${newConnIndex}" id="p${pIdx}_c${newConnIndex}">
+                    <label class="form-check-label" for="p${pIdx}_c${newConnIndex}">Conn. ${newConnIndex}</label>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', newCheckbox);
+        });
+    }
+
+    function updateConnectionDropdowns() {
+        const { inOptions, outOptions } = generateLaneOptions();
+
+        document.querySelectorAll('.conn-source').forEach(sel => {
+            const currentVal = sel.value;
+            sel.innerHTML = inOptions;
+            sel.value = currentVal; 
+        });
+
+        document.querySelectorAll('.conn-target').forEach(sel => {
+            const currentVal = sel.value;
+            sel.innerHTML = outOptions;
+            sel.value = currentVal; 
+        });
+    }
+
+    function generateLaneOptions() {
+        const laneSelects = document.querySelectorAll('.lane-type-select');
+        let inOptions = '';
+        let outOptions = '';
+
+        laneSelects.forEach((select, index) => {
+            if (select.value === "0") {
+                inOptions += `<option value="${index}">Banda ${index} (IN)</option>`;
+            } else {
+                outOptions += `<option value="${index}">Banda ${index} (OUT)</option>`;
+            }
+        });
+
+        return { inOptions, outOptions };
+    }
+</script>

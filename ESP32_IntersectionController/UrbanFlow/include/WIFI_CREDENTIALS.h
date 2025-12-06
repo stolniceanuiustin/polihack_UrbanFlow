@@ -3,6 +3,6 @@
 
 const char* ssid = "Satan II";      
 const char* password = "floricel"; 
-const char* serverUrl = "https://10.183.95.237:7281/Intersection/GetConfigByName?name=IntersectieIn4"; 
-
+const char* serverUrl = "https://10.183.95.237:7281/Intersection/GetConfigByName?name=IntersectieComplexa2"; 
+const char* sendStatusUrl = "https://10.183.95.237:7281/Intersection/UpdateStatus?name=IntersectieComplexa2";
 #endif 

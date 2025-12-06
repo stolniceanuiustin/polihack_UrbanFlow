@@ -1,4 +1,3 @@
-wwwroot\css\site.css
 wwwroot\favicon.ico
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -61,7 +60,7 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\css\site.css
+wwwroot\css\site.css
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\favicon.ico
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\js\site.js
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -123,3 +122,4 @@ A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowA
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\lib\jquery\dist\jquery.slim.min.js
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\lib\jquery\dist\jquery.slim.min.map
 A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\lib\jquery\LICENSE.txt
+A:\Coding\PuliHack\polihack_UrbanFlow\Web_IoTDashboard\ESP_Server\web\UrbanFlowApp\wwwroot\css\site.css
