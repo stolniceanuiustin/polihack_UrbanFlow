@@ -5,10 +5,14 @@
 #define PIN_ANTENNA5 A4
 #define PIN_ANTENNA6 A5
 
-// How many samples to take for the average. 
-// Higher = Smoother numbers, but slower reaction time.
-// 50 is a good balance for EMF.
-#define SAMPLES 5000 
+// How many samples to take for the average.
+#define SAMPLES 5000
+
+// The threshold to determine if signal is HIGH (1) or LOW (0)
+#define THRESHOLD 450
+
+//Delay intre citiri, trb sa fie >=2
+#define DELAY_BETWEEN_READ 2
 
 void setup()
 {
@@ -27,43 +31,72 @@ int getAverageReading(int pin)
   long sum = 0;
 
   // 1. CLEAR THE GHOST
-  // Read once and discard to switch the ADC capacitor to this pin
   analogRead(pin); 
-  delay(2); // Short wait for voltage to settle
+  delay(DELAY_BETWEEN_READ); 
 
   // 2. TAKE SAMPLES
   for(int i = 0; i < SAMPLES; i++)
   {
     sum += analogRead(pin);
-    // No delay needed inside this loop; we want to catch the wave peaks quickly
   }
 
   // 3. CALCULATE AVERAGE
   return (int)(sum / SAMPLES);
 }
 
+// Logic to convert the raw reading into 1 or 0
+int getBooleanState(int reading)
+{
+  if (reading > THRESHOLD) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+void sendData()
+{
+  // We collect the data first to keep the output clean
+  int val1 = getAverageReading(PIN_ANTENNA1);
+  int val2 = getAverageReading(PIN_ANTENNA2);
+  int val3 = getAverageReading(PIN_ANTENNA3);
+  int val4 = getAverageReading(PIN_ANTENNA4);
+  int val5 = getAverageReading(PIN_ANTENNA5);
+  int val6 = getAverageReading(PIN_ANTENNA6);
+
+  // Print in the format: "1,1 2,1 3,0 4,0 5,1 6,0"
+  
+  Serial.print("1,");
+  Serial.print(getBooleanState(val1));
+  Serial.print(" "); // Space separator
+
+  Serial.print("2,");
+  Serial.print(getBooleanState(val2));
+  Serial.print(" ");
+
+  Serial.print("3,");
+  Serial.print(getBooleanState(val3));
+  Serial.print(" ");
+
+  Serial.print("4,");
+  Serial.print(getBooleanState(val4));
+  Serial.print(" ");
+
+  Serial.print("5,");
+  Serial.print(getBooleanState(val5));
+  Serial.print(" ");
+
+  Serial.print("6,");
+  Serial.print(getBooleanState(val6));
+  
+  // End the line so the receiver knows the packet is finished
+  Serial.println(); 
+}
+
 void loop()
 {
-  Serial.println("--- Average Readings ---");
+  sendData();
   
-  Serial.print("Antenna 1: ");
-  Serial.println(getAverageReading(PIN_ANTENNA1));
-  
-  Serial.print("Antenna 2: ");
-  Serial.println(getAverageReading(PIN_ANTENNA2));
-
-  Serial.print("Antenna 3: ");
-  Serial.println(getAverageReading(PIN_ANTENNA3));
-
-  Serial.print("Antenna 4: ");
-  Serial.println(getAverageReading(PIN_ANTENNA4));
-
-  Serial.print("Antenna 5: ");
-  Serial.println(getAverageReading(PIN_ANTENNA5));
-  
-  Serial.print("Antenna 6: ");
-  Serial.println(getAverageReading(PIN_ANTENNA6));
-
-  // The main delay you requested
+  // Wait before sending the next packet
   delay(500); 
 }
