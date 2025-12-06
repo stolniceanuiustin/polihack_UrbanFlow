@@ -1,12 +1,13 @@
 #include "TrafficController.h"
+#include "CONFIG.h"
 
 #define DEBUG false
 
 // --- GLOBALS ---
-Intersection intr; // The actual definition of the object
+Intersection intr; 
 
 // --- CONSTANTS ---
-const uint32_t MIN_GREEN_TIME = 5000;
+const uint32_t MIN_GREEN_TIME = 1000;
 const uint32_t MAX_GREEN_TIME = 50000;
 const uint32_t STARVATION_THRESHOLD = 99999;
 const uint32_t SIMULATE_TRAFFIC_INTERVAL = 100;
@@ -58,23 +59,25 @@ void apply_phase_lights(Intersection *intr, int phase_idx) {
 }
 
 // --- LOGIC FUNCTIONS (Simulation & Max Pressure) ---
-// [Paste your simulate_traffic_changes, calculate_phase_pressure, and run_max_pressure_decision here]
-// I am omitting them for brevity, but they should be EXACTLY as they were in your previous code.
 
 void simulate_traffic_changes(Intersection *intr) {
-    // ... PASTE YOUR SIMULATION LOGIC HERE ...
-     if (DEBUG) Serial.println("\n--- Sensor Readings ---");
-     // (Using the logic from your previous message)
+    if (DEBUG) Serial.println("\n--- Sensor Readings ---");
+    
+    // 1. Simulate Arrivals (Randomly add cars)
     for (uint32_t i = 0; i < intr->lane_cnt; i++) {
         if (intr->lanes[i].type == LANE_IN && intr->lanes[i].hw.sensor_pin != -1) {
             int sensor_val = analogRead(intr->lanes[i].hw.sensor_pin);
+            // Map sensor value to probability (0 to 4095 -> 5% to 100%)
             int arrival_probability = map(sensor_val, 0, 4095, 5, 100);
+            
             if (random(0, 100) < arrival_probability) {
                 intr->lanes[i].current_traffic_value++;
                 if (intr->lanes[i].current_traffic_value > 255) intr->lanes[i].current_traffic_value = 255;
             }
         }
     }
+
+    // 2. Simulate Departures (Remove cars from Green lanes)
     const Phase *curr = &intr->phases[current_phase_idx];
     for (uint32_t c = 0; c < intr->connection_cnt; c++) {
         if (curr->active_connections_mask & (1ULL << c)) {
@@ -86,8 +89,9 @@ void simulate_traffic_changes(Intersection *intr) {
     }
 }
 
+//keep in mind that calculate 
 int32_t calculate_phase_pressure(Intersection *intr, int phase_index) {
-     int32_t pressure = 0;
+    int32_t pressure = 0;
     const Phase *p = &intr->phases[phase_index];
     for (uint32_t c = 0; c < intr->connection_cnt; c++) {
         if (p->active_connections_mask & (1ULL << c)) {
@@ -100,48 +104,83 @@ int32_t calculate_phase_pressure(Intersection *intr, int phase_index) {
 
 void run_max_pressure_decision(Intersection *intr) {
     int best_phase_idx = -1;
-    int32_t max_pressure = -1;
     unsigned long now = millis();
     unsigned long current_duration = now - current_phase_start_time;
 
     Serial.println("\n--- Decision Time ---");
 
-    // Starvation check
-    int starved_phase = -1;
-    unsigned long max_wait_time = 0;
+    // 1. CHECK TOTAL SYSTEM PRESSURE
+    // If no cars are waiting anywhere, we behave like a simple timer
+    int32_t total_system_pressure = 0;
     for (uint32_t i = 0; i < intr->phase_cnt; i++) {
-        if (i == current_phase_idx) continue;
-        if (calculate_phase_pressure(intr, i) > 0) {
-            unsigned long wait_time = now - phase_last_serviced[i];
-            if (wait_time > STARVATION_THRESHOLD) {
-                if (wait_time > max_wait_time) {
-                    max_wait_time = wait_time;
-                    starved_phase = i;
+        total_system_pressure += calculate_phase_pressure(intr, i);
+    }
+
+    if (total_system_pressure == 0) {
+        // --- IDLE MODE (Cycle based on Duration) ---
+        Serial.println(">> No Traffic Detected. Using Timer Logic.");
+        
+        uint32_t target_duration = intr->phases[current_phase_idx].duration_ms;
+        if (target_duration == 0) target_duration = intr->default_phase_duration_ms;
+
+        if (current_duration >= target_duration) {
+            // Cycle to the next phase sequentially
+            best_phase_idx = (current_phase_idx + 1) % intr->phase_cnt;
+        } else {
+            // Keep waiting
+            best_phase_idx = current_phase_idx;
+        }
+    } 
+    else {
+        // --- MAX PRESSURE MODE (Smart Logic) ---
+        
+        // Starvation check
+        int starved_phase = -1;
+        unsigned long max_wait_time = 0;
+        
+        for (uint32_t i = 0; i < intr->phase_cnt; i++) {
+            if (i == current_phase_idx) continue;
+            
+            if (calculate_phase_pressure(intr, i) > 0) {
+                unsigned long wait_time = now - phase_last_serviced[i];
+                if (wait_time > STARVATION_THRESHOLD) {
+                    if (wait_time > max_wait_time) {
+                        max_wait_time = wait_time;
+                        starved_phase = i;
+                    }
                 }
             }
         }
-    }
 
-    if (starved_phase != -1) {
-        best_phase_idx = starved_phase;
-    } else {
-        bool force_switch = false;
-        if (current_duration >= MAX_GREEN_TIME) force_switch = true;
-        for (uint32_t i = 0; i < intr->phase_cnt; i++) {
-            if (force_switch && i == current_phase_idx) continue;
-            int32_t p = calculate_phase_pressure(intr, i);
-            Serial.printf("Phase %d Pressure: %d\n", i, p);
-            if (p > max_pressure) {
-                max_pressure = p;
-                best_phase_idx = i;
+        if (starved_phase != -1) {
+            best_phase_idx = starved_phase;
+        } else {
+            int32_t max_pressure = -1;
+            bool force_switch = false;
+            
+            if (current_duration >= MAX_GREEN_TIME) force_switch = true;
+            
+            for (uint32_t i = 0; i < intr->phase_cnt; i++) {
+                if (force_switch && i == current_phase_idx) continue;
+                
+                int32_t p = calculate_phase_pressure(intr, i);
+                Serial.printf("Phase %d Pressure: %d\n", i, p);
+                
+                if (p > max_pressure) {
+                    max_pressure = p;
+                    best_phase_idx = i;
+                }
+            }
+            
+            if (!force_switch && max_pressure == calculate_phase_pressure(intr, current_phase_idx)) {
+                best_phase_idx = current_phase_idx;
             }
         }
-        if (!force_switch && max_pressure == calculate_phase_pressure(intr, current_phase_idx)) {
-            best_phase_idx = current_phase_idx;
-        }
     }
 
+    // --- APPLY DECISION ---
     if (best_phase_idx == -1) best_phase_idx = current_phase_idx;
+    
     if (best_phase_idx != current_phase_idx) {
         Serial.printf(">>> SWITCHING: Phase %d -> Phase %d\n", current_phase_idx, best_phase_idx);
         current_phase_idx = best_phase_idx;
@@ -149,8 +188,9 @@ void run_max_pressure_decision(Intersection *intr) {
         phase_last_serviced[current_phase_idx] = now;
         apply_phase_lights(intr, current_phase_idx);
     } else {
-        Serial.printf(">>> EXTENDING: Phase %d\n", current_phase_idx);
+        Serial.printf(">>> EXTENDING: Phase %d (Time: %lu ms)\n", current_phase_idx, current_duration);
     }
+    
     last_decision_time = now;
 }
 
@@ -158,16 +198,12 @@ void run_max_pressure_decision(Intersection *intr) {
 
 void controller_setup() {
     Serial.println("--- Initializing Hardware from Config ---");
-    
-    // 1. Initialize Pins (based on the config loaded in Main)
     initialize_hardware(&intr);
 
-    // 2. Init Timers
     unsigned long now = millis();
     current_phase_start_time = now;
     for (int i = 0; i < 4; i++) phase_last_serviced[i] = now;
 
-    // 3. Start First Phase
     apply_phase_lights(&intr, current_phase_idx);
 }
 
@@ -176,11 +212,15 @@ void controller_loop() {
 
     unsigned long now = millis();
 
-    if (now - last_simulation_time > SIMULATE_TRAFFIC_INTERVAL) {
-        simulate_traffic_changes(&intr);
-        last_simulation_time = now;
+    // --- 1. SIMULATION (Only if enabled in CONFIG.h) ---
+    if (SIMULATION_MODE) {
+        if (now - last_simulation_time > SIMULATE_TRAFFIC_INTERVAL) {
+            simulate_traffic_changes(&intr);
+            last_simulation_time = now;
+        }
     }
 
+    // --- 2. DECISION LOGIC ---
     if (now - last_decision_time > DECISION_TIME_INTERVAL) {
         if (now - current_phase_start_time > MIN_GREEN_TIME) {
             run_max_pressure_decision(&intr);
