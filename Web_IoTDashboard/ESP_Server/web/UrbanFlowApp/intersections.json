@@ -1003,5 +1003,70 @@
         "duration_ms": 5000
       }
     ]
+  },
+  {
+    "id": "9a9556d4-783b-4715-b67c-bc8a2fc27159",
+    "name": "Intersectia Junglei",
+    "status": "OK",
+    "default_phase_duration_ms": 3000,
+    "lane_cnt": 3,
+    "lanes": [
+      {
+        "id": 0,
+        "type": 0,
+        "bearing": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 1,
+        "type": 1,
+        "bearing": 90,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 2,
+        "type": 0,
+        "bearing": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      }
+    ],
+    "connection_cnt": 2,
+    "connections": [
+      {
+        "source_lane_idx": 0,
+        "target_lane_idx": 1,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 2,
+        "target_lane_idx": 1,
+        "weight": 1
+      }
+    ],
+    "phase_cnt": 1,
+    "phases": [
+      {
+        "active_connections_mask": 1,
+        "duration_ms": 5000
+      }
+    ]
   }
 ]
