@@ -26,7 +26,7 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>Intersecții Configurate</h3>
-        <a asp-controller="Intersection" asp-action="Create" class="btn btn-primary btn-lg">
+        <a asp-controller="Intersection" asp-action="Create" class="btn btn-colors">
             Adaugă Intersecție Nouă
         </a>
     </div>
@@ -110,13 +110,13 @@
 
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a asp-controller="Intersection" asp-action="Edit" asp-route-id="@currentId" class="btn btn-sm btn-outline-primary">
+                                    <a asp-controller="Intersection" asp-action="Edit" asp-route-id="@currentId" class="btn btn-colors">
                                         Reconfigurează
                                     </a>
 
                                     <form asp-controller="Intersection" asp-action="Delete" method="post" onsubmit="return confirm('Ești sigur că vrei să ștergi intersecția @currentName?');" style="display:inline;">
                                         <input type="hidden" name="id" value="@currentId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <button type="submit" class="btn btn-colors-2">
                                             Șterge
                                         </button>
                                     </form>

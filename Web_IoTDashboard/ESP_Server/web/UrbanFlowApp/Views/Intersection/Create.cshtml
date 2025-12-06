@@ -3,12 +3,12 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Configurare Intersecție Nouă</h2>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Înapoi la Dashboard</a>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-colors">Înapoi la Dashboard</a>
     </div>
     <form asp-action="Create" method="post" id="mainForm">
 
         <div class="card mb-3">
-            <div class="card-header bg-primary text-white">1. Configurare Generală</div>
+            <div class="card-header ch-colors">1. Configurare Generală</div>
             <div class="card-body">
                 <div class="form-group">
                     <label>Nume Intersecție</label>
@@ -18,36 +18,36 @@
         </div>
 
         <div class="card mb-3">
-            <div class="card-header bg-info text-white">2. Definire Benzi</div>
+            <div class="card-header ch-colors">2. Definire Benzi</div>
             <div class="card-body">
                 <div class="form-group">
                     <label>Număr de benzi:</label>
                     <input type="number" id="numLanesInput" class="form-control" min="1" max="16" style="width:100px; display:inline-block">
-                    <button type="button" class="btn btn-secondary" onclick="generateLanes()">Generează Benzi</button>
+                    <button type="button" class="btn btn-colors" onclick="generateLanes()">Generează Benzi</button>
                 </div>
                 <div id="lanesContainer" class="mt-3"></div>
             </div>
         </div>
 
         <div class="card mb-3">
-            <div class="card-header bg-warning text-dark">3. Conexiuni (Rute)</div>
+            <div class="card-header ch-colors">3. Conexiuni (Rute)</div>
             <div class="card-body">
                 <p class="text-muted">Definiți rutele posibile (ex: Banda 0 -> Banda 3)</p>
-                <button type="button" class="btn btn-sm btn-outline-dark mb-2" onclick="addConnection()">+ Adaugă Conexiune</button>
+                <button type="button" class="btn btn-colors" onclick="addConnection()">Adaugă Conexiune</button>
                 <div id="connectionsContainer"></div>
             </div>
         </div>
 
         <div class="card mb-3">
-            <div class="card-header bg-success text-white">4. Faze Semafor</div>
+            <div class="card-header ch-colors">4. Faze Semafor</div>
             <div class="card-body">
                 <p class="text-muted">Selectați conexiunile active (VERDE) pentru fiecare fază.</p>
-                <button type="button" class="btn btn-sm btn-outline-dark mb-2" onclick="addPhase()">+ Adaugă Fază</button>
+                <button type="button" class="btn btn-colors" onclick="addPhase()">Adaugă Fază</button>
                 <div id="phasesContainer"></div>
             </div>
         </div>
 
-        <button type="submit" class="btn btn-lg btn-primary btn-block">Salvează Intersecția</button>
+        <button type="submit" class="btn btn-colors">Salvează Intersecția</button>
     </form>
 </div>
 
