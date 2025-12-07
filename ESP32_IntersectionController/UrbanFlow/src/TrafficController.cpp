@@ -1,22 +1,22 @@
 #include "TrafficController.h"
 #include "CONFIG.h"
 
-#define DEBUG false  // Set to true for Sensor readings, logs below are always active
+#define DEBUG false  // Set to true for detailed Sensor readings
 
 // --- GLOBALS ---
 Intersection intr; 
 
 // --- CONSTANTS ---
-const uint32_t MIN_GREEN_TIME = 1000;
+const uint32_t MIN_GREEN_TIME = 5000;
 const uint32_t MAX_GREEN_TIME = 50000;
 const uint32_t STARVATION_THRESHOLD = 99999;
-const uint32_t SIMULATE_TRAFFIC_INTERVAL = 100;
+const uint32_t SIMULATE_TRAFFIC_INTERVAL = 500;
 const uint32_t DECISION_TIME_INTERVAL = 1000;
 
 // --- TRANSITION CONSTANTS ---
-const uint32_t YELLOW_DURATION_MS = 1000;      // 1 Second All-Yellow
-const uint32_t PEDESTRIAN_DURATION_MS = 5000;  // 5 Seconds All-Red
-const int      PEDESTRIAN_CYCLE_TRIGGER = 4;   // Trigger Pedestrian phase after 4 changes
+const uint32_t YELLOW_DURATION_MS = 2000;      
+const uint32_t PEDESTRIAN_DURATION_MS = 5000;  
+const uint32_t PEDESTRIAN_COOLDOWN_MS = 60000; 
 
 // --- ENUMS ---
 enum ControllerState {
@@ -31,6 +31,8 @@ unsigned long last_simulation_time = 0;
 unsigned long current_phase_start_time = 0;
 unsigned long transition_start_time = 0; 
 
+unsigned long last_pedestrian_time = 0; 
+
 uint32_t current_phase_idx = 0;
 uint32_t next_pending_phase_idx = 0;     
 int      phase_change_counter = 0;       
@@ -38,7 +40,9 @@ ControllerState current_state = STATE_GREEN_RUNNING;
 
 unsigned long phase_last_serviced[4] = {0, 0, 0, 0};
 
-// --- HARDWARE HELPERS (Private) ---
+uint16_t received_sensor_value[64];   
+
+// --- HARDWARE HELPERS ---
 
 void set_lights(const Lane *lane, bool red, bool yellow, bool green) {
     if (lane->hw.red_pin != -1) digitalWrite(lane->hw.red_pin, red ? HIGH : LOW);
@@ -56,7 +60,7 @@ void initialize_hardware(Intersection *intr) {
     }
 }
 
-// 1. NORMAL GREEN: Sets specific Green lights, others Red
+// 1. NORMAL GREEN
 void apply_phase_lights_green(Intersection *intr, int phase_idx) {
     const Phase *next_phase = &intr->phases[phase_idx];
     for (uint32_t i = 0; i < intr->lane_cnt; i++) {
@@ -77,16 +81,30 @@ void apply_phase_lights_green(Intersection *intr, int phase_idx) {
     }
 }
 
-// 2. TRANSITION: Sets ALL lights to YELLOW
-void apply_all_yellow(Intersection *intr) {
+// 2. TRANSITION YELLOW
+void apply_transition_yellow(Intersection *intr, int phase_idx_ending) {
+    const Phase *ending_phase = &intr->phases[phase_idx_ending];
+    
     for (uint32_t i = 0; i < intr->lane_cnt; i++) {
         Lane *lane = &intr->lanes[i];
         if (lane->type != LANE_IN) continue;
-        set_lights(lane, false, true, false); // Yellow ON
+
+        bool was_green = false;
+        for (uint32_t c = 0; c < intr->connection_cnt; c++) {
+            if (intr->connections[c].source_lane_idx == i) {
+                if (ending_phase->active_connections_mask & (1ULL << c)) {
+                    was_green = true;
+                    break;
+                }
+            }
+        }
+
+        if (was_green) set_lights(lane, false, true, false); 
+        else set_lights(lane, true, false, false); 
     }
 }
 
-// 3. PEDESTRIAN: Sets ALL lights to RED
+// 3. PEDESTRIAN RED
 void apply_all_red(Intersection *intr) {
     for (uint32_t i = 0; i < intr->lane_cnt; i++) {
         Lane *lane = &intr->lanes[i];
@@ -99,28 +117,31 @@ void apply_all_red(Intersection *intr) {
 
 void simulate_traffic_changes(Intersection *intr) {
     if (DEBUG) Serial.println("\n--- Sensor Readings ---");
-    
-    // 1. Simulate Arrivals
+
+    // 1. Simulate ARRIVALS
     for (uint32_t i = 0; i < intr->lane_cnt; i++) {
-        if (intr->lanes[i].type == LANE_IN && intr->lanes[i].hw.sensor_pin != -1) {
-            int sensor_val = analogRead(intr->lanes[i].hw.sensor_pin);
-            int arrival_probability = map(sensor_val, 0, 4095, 5, 100);
-            
+        if (intr->lanes[i].type == LANE_IN) {
+            int sensor_val = received_sensor_value[i];
+            int arrival_probability = map(sensor_val, 0, 1023, 5, 100);
+
             if (random(0, 100) < arrival_probability) {
                 intr->lanes[i].current_traffic_value++;
-                if (intr->lanes[i].current_traffic_value > 255) intr->lanes[i].current_traffic_value = 255;
+                if (intr->lanes[i].current_traffic_value > 255)
+                    intr->lanes[i].current_traffic_value = 255;
             }
         }
     }
 
-    // 2. Simulate Departures (Only if Green Running)
+    // 2. Simulate DEPARTURES
     if (current_state == STATE_GREEN_RUNNING) {
         const Phase *curr = &intr->phases[current_phase_idx];
         for (uint32_t c = 0; c < intr->connection_cnt; c++) {
             if (curr->active_connections_mask & (1ULL << c)) {
-                uint32_t source_idx = intr->connections[c].source_lane_idx;
-                if (intr->lanes[source_idx].current_traffic_value > 0) {
-                    if (random(0, 100) < 50) intr->lanes[source_idx].current_traffic_value--;
+                uint32_t src = intr->connections[c].source_lane_idx;
+                if (intr->lanes[src].current_traffic_value > 0) {
+                    if (random(0, 100) < 50) {
+                        intr->lanes[src].current_traffic_value--;
+                    }
                 }
             }
         }
@@ -186,7 +207,6 @@ int determine_next_phase(Intersection *intr) {
 
     int32_t max_pressure = -1;
     bool force_switch = false;
-    
     if (current_duration >= MAX_GREEN_TIME) force_switch = true;
     
     for (uint32_t i = 0; i < intr->phase_cnt; i++) {
@@ -216,6 +236,7 @@ void controller_setup() {
 
     unsigned long now = millis();
     current_phase_start_time = now;
+    last_pedestrian_time = now; // Initialize cooldown
     for (int i = 0; i < 4; i++) phase_last_serviced[i] = now;
 
     current_state = STATE_GREEN_RUNNING;
@@ -241,7 +262,6 @@ void controller_loop() {
         // A: GREEN LIGHTS
         case STATE_GREEN_RUNNING:
             if (now - last_decision_time > DECISION_TIME_INTERVAL) {
-                // Calculate current duration for logic AND logging
                 unsigned long current_duration = now - current_phase_start_time;
 
                 if (current_duration > MIN_GREEN_TIME) {
@@ -254,11 +274,11 @@ void controller_loop() {
                         current_state = STATE_YELLOW_TRANSITION;
                         transition_start_time = now;
                         
-                        apply_all_yellow(&intr); // All Yellow
+                        // Apply Yellow
+                        apply_transition_yellow(&intr, current_phase_idx); 
                         phase_change_counter++;
                     } 
                     else {
-                         // <--- LOG RESTORED HERE --->
                          Serial.printf(">>> EXTENDING: Phase %d (Time: %lu ms)\n", current_phase_idx, current_duration);
                     }
                 }
@@ -270,14 +290,20 @@ void controller_loop() {
         case STATE_YELLOW_TRANSITION:
             if (now - transition_start_time > YELLOW_DURATION_MS) {
                 
-                if (phase_change_counter >= PEDESTRIAN_CYCLE_TRIGGER) {
-                    Serial.println(">>> PEDESTRIAN MODE (ALL RED)");
+                // PEDESTRIAN CHECK LOGIC
+                // 1. Is it changing phases? (Yes, we are in Yellow transition)
+                // 2. Has enough time passed since the last pedestrian cycle?
+                bool time_for_pedestrians = (now - last_pedestrian_time >= PEDESTRIAN_COOLDOWN_MS);
+
+                if (time_for_pedestrians) {
+                    Serial.println(">>> PEDESTRIAN MODE TRIGGERED (ALL RED)");
                     current_state = STATE_PEDESTRIAN_RED;
                     transition_start_time = now;
+                    last_pedestrian_time = now; // Reset timer
                     apply_all_red(&intr);
-                    phase_change_counter = 0;
                 } 
                 else {
+                    // Normal Cycle
                     current_state = STATE_GREEN_RUNNING;
                     current_phase_idx = next_pending_phase_idx;
                     current_phase_start_time = now;
@@ -290,7 +316,11 @@ void controller_loop() {
         // C: PEDESTRIAN ALL RED
         case STATE_PEDESTRIAN_RED:
             if (now - transition_start_time > PEDESTRIAN_DURATION_MS) {
-                Serial.println(">>> PEDESTRIAN DONE. Resuming.");
+                
+                // --- NEW PRINT STATEMENT ---
+                Serial.printf(">>> PEDESTRIAN DONE. Resuming Phase %d.\n", next_pending_phase_idx);
+                
+                // Resume the phase we were supposed to go to
                 current_state = STATE_GREEN_RUNNING;
                 current_phase_idx = next_pending_phase_idx;
                 current_phase_start_time = now;

@@ -6,10 +6,10 @@
 #define PIN_ANTENNA6 A5
 
 // How many samples to take for the average.
-#define SAMPLES 5000
+#define SAMPLES 500
 
 // The threshold to determine if signal is HIGH (1) or LOW (0)
-#define THRESHOLD 450
+#define THRESHOLD 120
 
 //Delay intre citiri, trb sa fie >=2
 #define DELAY_BETWEEN_READ 2

@@ -1,12 +1,16 @@
 #include <Arduino.h>
 
+// Lane analog pin assignments
+#define POT_LANE_1 34  
+#define POT_LANE_2 35 
+#define POT_LANE_4 26
+#define POT_LANE_6 33
+#define POT_LANE_7 25
+#define POT_LANE_9 27
 
-#define POT_LANE_1 A0 
-#define POT_LANE_2 A1 
-#define POT_LANE_4 A2 
-#define POT_LANE_6 A3 
-#define POT_LANE_7 A4 
-#define POT_LANE_9 A5
+
+#define TXD2 17   
+#define RXD2 16
 
 struct LaneConfig {
   int laneID;      
@@ -26,12 +30,16 @@ const int NUM_LANES = sizeof(lanes) / sizeof(lanes[0]);
 
 void setup()
 {
-    Serial.begin(9600);
-    
+    Serial.begin(9600);                         
+    Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2); 
+
+    analogReadResolution(10);
+
     for (int i = 0; i < NUM_LANES; i++) {
         pinMode(lanes[i].analogPin, INPUT);
     }
-    
+
+    Serial.println("Sender READY");
 }
 
 void loop()
@@ -41,14 +49,18 @@ void loop()
     for (int i = 0; i < NUM_LANES; i++) {
         int rawValue = analogRead(lanes[i].analogPin); 
         
-        //Format: "ID,VALUE "
         outputString += String(lanes[i].laneID);
         outputString += ",";
         outputString += String(rawValue);
         outputString += " ";
     }
-    
-    Serial.println(outputString); 
-    
-    delay(100); 
+
+    // Send to RECEIVER
+    Serial2.println(outputString);
+
+    // Print for debugging
+    Serial.print("[TX] ");
+    Serial.println(outputString);
+
+    delay(100);
 }
