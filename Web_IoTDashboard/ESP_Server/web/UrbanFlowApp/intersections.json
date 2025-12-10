@@ -1068,5 +1068,143 @@
         "duration_ms": 5000
       }
     ]
+  },
+  {
+    "id": "17482408-cfcb-4afd-be82-e69b7019184f",
+    "name": "Intersectie3Benzxi",
+    "status": "OK",
+    "default_phase_duration_ms": 3000,
+    "lane_cnt": 3,
+    "lanes": [
+      {
+        "id": 0,
+        "type": 0,
+        "bearing": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 1,
+        "type": 0,
+        "bearing": 270,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 2,
+        "type": 1,
+        "bearing": 90,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      }
+    ],
+    "connection_cnt": 2,
+    "connections": [
+      {
+        "source_lane_idx": 0,
+        "target_lane_idx": 2,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 1,
+        "target_lane_idx": 2,
+        "weight": 1
+      }
+    ],
+    "phase_cnt": 2,
+    "phases": [
+      {
+        "active_connections_mask": 1,
+        "duration_ms": 5000
+      },
+      {
+        "active_connections_mask": 2,
+        "duration_ms": 5000
+      }
+    ]
+  },
+  {
+    "id": "e384bdef-5420-4406-9892-c237a8dcb232",
+    "name": "IntersectieDemo",
+    "status": "OK",
+    "default_phase_duration_ms": 3000,
+    "lane_cnt": 3,
+    "lanes": [
+      {
+        "id": 0,
+        "type": 0,
+        "bearing": 0,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 1,
+        "type": 0,
+        "bearing": 270,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      },
+      {
+        "id": 2,
+        "type": 1,
+        "bearing": 90,
+        "current_traffic_value": 0,
+        "hw": {
+          "sensor_pin": -1,
+          "green_pin": -1,
+          "yellow_pin": -1,
+          "red_pin": -1
+        }
+      }
+    ],
+    "connection_cnt": 2,
+    "connections": [
+      {
+        "source_lane_idx": 1,
+        "target_lane_idx": 2,
+        "weight": 1
+      },
+      {
+        "source_lane_idx": 0,
+        "target_lane_idx": 2,
+        "weight": 1
+      }
+    ],
+    "phase_cnt": 2,
+    "phases": [
+      {
+        "active_connections_mask": 1,
+        "duration_ms": 5000
+      },
+      {
+        "active_connections_mask": 2,
+        "duration_ms": 8000
+      }
+    ]
   }
 ]
