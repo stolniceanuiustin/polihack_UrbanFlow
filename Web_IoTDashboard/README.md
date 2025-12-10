@@ -1,4 +1,4 @@
-# 🚦 UrbanFlow - Smart Traffic Management Dashboard
+# UrbanFlow - Smart Traffic Management Dashboard
 
 ## Developed by: Popescu Florian
 
